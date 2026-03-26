@@ -41,11 +41,11 @@ func Check(url string) HealthCheck {
 
 func (r HealthCheck) String() string {
 	if r.Err != nil {
-		return fmt.Sprintf("[DOWN]  %s | error: %v | %dms", r.URL, r.Err, r.LatencyMs)
+		return fmt.Sprintf("[OFFLINE]  %s | error: %v | %dms", r.URL, r.Err, r.LatencyMs)
 	}
-	status := "UP"
+	status := "ONLINE"
 	if r.StatusCode != http.StatusOK {
-		status = "WARN"
+		status = "ERROR"
 	}
 	return fmt.Sprintf("[%s]  %s | %d | %dms", status, r.URL, r.StatusCode, r.LatencyMs)
 }

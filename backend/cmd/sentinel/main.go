@@ -19,19 +19,20 @@ func main() {
 		urls = os.Args[1:]
 	}
 
-	fmt.Println("=== Sentinel Health Check ===")
-	fmt.Println()
-
 	var wg sync.WaitGroup
+	results := make([]monitor.HealthCheck, len(urls))
 
-	for _, url := range urls {
+	for i, url := range urls {
 		wg.Add(1)
-		go func(u string) {
+		go func(idx int, u string) {
 			defer wg.Done()
-			result := monitor.Check(u)
-			fmt.Println(result)
-		}(url)
+			results[idx] = monitor.Check(u)
+		}(i, url)
 	}
 
 	wg.Wait()
+
+	for _, i := range results {
+		fmt.Println(i)
+	}
 }
