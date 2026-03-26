@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"sync"
 
 	"tracker/internal/monitor"
 )
@@ -14,7 +15,6 @@ func main() {
 		"https://httpstat.us/500",
 	}
 
-	// Allow overriding default URLs via command-line args
 	if len(os.Args) > 1 {
 		urls = os.Args[1:]
 	}
@@ -22,8 +22,16 @@ func main() {
 	fmt.Println("=== Sentinel Health Check ===")
 	fmt.Println()
 
+	var wg sync.WaitGroup
+
 	for _, url := range urls {
-		result := monitor.Check(url)
-		fmt.Println(result)
+		wg.Add(1)
+		go func(u string) {
+			defer wg.Done()
+			result := monitor.Check(u)
+			fmt.Println(result)
+		}(url)
 	}
+
+	wg.Wait()
 }
