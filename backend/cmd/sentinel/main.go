@@ -1,12 +1,14 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	"log"
 	"os"
 	"sync"
 
 	"tracker/internal/monitor"
-	// "tracker/internal/store"
+	"tracker/internal/store"
 )
 
 func main() {
@@ -20,10 +22,11 @@ func main() {
 		urls = os.Args[1:]
 	}
 
-	// db, err := store.New("localhost", 5432, "drew", "password123", "uptime_monitor")
-	// if err != nil {
-	// 	log.Fatalf("Failed to connect to database: %v", err)
-	// }
+	db, err := store.New("localhost", 5432, "drew", "password123", "uptime_monitor")
+	if err != nil {
+		log.Fatalf("Failed to connect to database: %v", err)
+	}
+	defer db.Close()
 
 	fmt.Println("=== Sentinel Health Check ===")
 	fmt.Println()
@@ -44,5 +47,11 @@ func main() {
 
 	for _, r := range results {
 		fmt.Println(r)
+	}
+
+	if err := db.SaveChecks(context.Background(), results); err != nil {
+		log.Printf("Failed to save results: %v", err)
+	} else {
+		fmt.Printf("\n✓ Saved %d check(s) to database\n", len(results))
 	}
 }
