@@ -6,6 +6,8 @@ import (
 	"fmt"
 
 	"tracker/internal/monitor"
+
+	_ "github.com/lib/pq"
 )
 
 type DB struct {
