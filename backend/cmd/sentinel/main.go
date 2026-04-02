@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"sync"
 
 	"tracker/internal/monitor"
 	"tracker/internal/store"
@@ -13,9 +12,52 @@ import (
 
 func main() {
 	urls := []string{
-		"https://www.google.com",
-		"https://github.com",
-		"https://httpstat.us/500",
+		"https://www.netflix.com",
+		"https://www.disneyplus.com",
+		"https://www.twitch.tv",
+		"https://www.max.com",
+		"https://www.soundcloud.com",
+		"https://www.bbc.com",
+		"https://www.pinterest.com",
+		"https://www.spotify.com",
+		"https://www.vimeo.com",
+		"https://www.facebook.com",
+		"https://www.instagram.com",
+		"https://www.x.com",
+		"https://www.reddit.com",
+		"https://www.slack.com",
+		"https://www.discord.com",
+		"https://www.linkedin.com",
+		"https://www.zoom.us",
+		"https://www.tumblr.com",
+		"https://www.meetup.com",
+		"https://www.amazon.com",
+		"https://www.ebay.com",
+		"https://www.robinhood.com",
+		"https://www.paypal.com",
+		"https://www.stripe.com",
+		"https://www.nasdaq.com",
+		"https://www.zalando.com",
+		"https://www.instacart.com",
+		"https://www.airbnb.com",
+		"https://www.lyft.com",
+		"https://www.delta.com",
+		"https://www.toyota.com",
+		"https://www.siemens.com",
+		"https://www.sysco.com",
+		"https://www.nytimes.com",
+		"https://www.theguardian.com",
+		"https://www.forbes.com",
+		"https://www.coursera.org",
+		"https://www.duolingo.com",
+		"https://www.blackboard.com",
+		"https://www.medium.com",
+		"https://www.canva.com",
+		"https://www.doordash.com",
+		"https://www.expedia.com",
+		"https://www.etsy.com",
+		"https://www.coinbase.com",
+		"https://www.imdb.com",
 	}
 
 	if len(os.Args) > 1 {
@@ -31,19 +73,8 @@ func main() {
 	fmt.Println("=== Sentinel Health Check ===")
 	fmt.Println()
 
-	// Run checks concurrently
-	var wg sync.WaitGroup
-	results := make([]monitor.HealthCheck, len(urls))
-
-	for i, url := range urls {
-		wg.Add(1)
-		go func(idx int, u string) {
-			defer wg.Done()
-			results[idx] = monitor.Check(u)
-		}(i, url)
-	}
-
-	wg.Wait()
+	// Run checks concurrently (rate-limited to 10 at a time)
+	results := monitor.CheckAll(urls)
 
 	for _, r := range results {
 		fmt.Println(r)
