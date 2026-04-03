@@ -21,7 +21,7 @@ export default function Dashboard() {
       <header className="dashboard__header">
         <div className="dashboard__title-row">
           <div>
-            <h1 className="dashboard__title">Sentinel</h1>
+            <h1 className="dashboard__title">AWS Uptime Sentinel</h1>
             <p className="dashboard__subtitle">Dashboard</p>
           </div>
           <button className="dashboard__refresh" onClick={refresh} aria-label="Refresh">
