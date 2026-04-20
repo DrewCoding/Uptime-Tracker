@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"tracker/internal/monitor"
 	"tracker/internal/store"
@@ -68,21 +69,27 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
+	ticker := time.NewTicker(1 * time.Hour)
+	defer ticker.Stop()
 	defer db.Close()
 
-	fmt.Println("=== Sentinel Health Check ===")
-	fmt.Println()
+	for {
+		fmt.Println("=== Sentinel Health Check ===")
+		fmt.Println()
 
-	// Run checks concurrently (rate-limited to 10 at a time)
-	results := monitor.CheckAll(urls)
+		// Run checks concurrently (rate-limited to 10 at a time)
+		results := monitor.CheckAll(urls)
 
-	for _, r := range results {
-		fmt.Println(r)
+		for _, r := range results {
+			fmt.Println(r)
+		}
+
+		if err := db.SaveChecks(context.Background(), results); err != nil {
+			log.Printf("Failed to save results: %v", err)
+		} else {
+			fmt.Printf("\n✓ Saved %d check(s) to database\n", len(results))
+		}
+		<-ticker.C
 	}
 
-	if err := db.SaveChecks(context.Background(), results); err != nil {
-		log.Printf("Failed to save results: %v", err)
-	} else {
-		fmt.Printf("\n✓ Saved %d check(s) to database\n", len(results))
-	}
 }
